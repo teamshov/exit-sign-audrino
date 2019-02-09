@@ -42,6 +42,12 @@ if(s == "red"){
   digitalWrite(green, HIGH); // turn the LED on 
 }
 
+if(s == "yellow"){
+  digitalWrite(blue, HIGH); // turn the LED on 
+  digitalWrite(red, LOW); // turn the LED off 
+  digitalWrite(green, LOW); // turn the LED off 
+}
+
 if(s == "blue"){
   digitalWrite(blue, LOW); // turn the LED on 
   digitalWrite(red, HIGH); // turn the LED on 
