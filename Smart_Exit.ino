@@ -2,7 +2,7 @@
 #include <PubSubClient.h>
 
 const char* ssid = "Abdulla Al Noman";
-const char* password = "alnoman8877";
+const char* password = "";
 
 //const char* ssid = "pollution"; // username for the router
 //const char* password = "aus12345"; // password for the router
