@@ -1,11 +1,11 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 
-const char* ssid = "Abdulla Al Noman";
-const char* password = "";
+//const char* ssid = "Abdulla Al Noman";
+//const char* password = "alnoman8877";
 
-//const char* ssid = "pollution"; // username for the router
-//const char* password = "aus12345"; // password for the router
+const char* ssid = "pollution"; // username for the router
+const char* password = "aus12345"; // password for the router
 
 const char* mqttServer = "m16.cloudmqtt.com"; // host address that we will connect to
 const int mqttPort = 18357;
@@ -107,5 +107,22 @@ client.subscribe("esp32/esp32test");
  
 void loop()
 {
+   char slpg[10];
+   float sensor_volt;
+    float sensorValue;
+
+    sensorValue = analogRead(38);
+    sensor_volt = sensorValue/1024*5.0;
+
+    Serial.print("sensor_volt = ");
+    Serial.print(sensor_volt);
+    
+    Serial.println("V");
+    itoa(sensorValue,slpg,10); // converting value to string
+    
+    client.publish("esp32/esp32test1",slpg);
+    Serial.println(sensorValue);
+    delay(1000);
+
 client.loop();
 }
