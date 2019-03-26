@@ -7,10 +7,13 @@
 const char* ssid = "pollution"; // username for the router
 const char* password = "aus12345"; // password for the router
 
-const char* mqttServer = "m16.cloudmqtt.com"; // host address that we will connect to
-const int mqttPort = 18357;
-const char* mqttUser = "tgfiquve";
-const char* mqttPassword = "X4GCp1RDg7zh";
+//const char* mqttServer = "m16.cloudmqtt.com"; // host address that we will connect to
+//const int mqttPort = 18357;
+//const char* mqttUser = "tgfiquve";
+//const char* mqttPassword = "X4GCp1RDg7zh";
+
+const char* mqttServer = "omaraa.ddns.net"; // host address that we will connect to
+const int mqttPort = 1883;
 
 int red = 5;
 int green = 25;
@@ -90,7 +93,8 @@ client.setCallback(callback);
 while (!client.connected()) {
 Serial.println("Connecting to MQTT...");
  
-if (client.connect("ESP32Client", mqttUser, mqttPassword ))
+//if (client.connect("ESP32Client", mqttUser, mqttPassword ))
+if (client.connect("ESP32Client"))
 {
 Serial.println("connected to MQTT");
 }
@@ -109,20 +113,20 @@ void loop()
 {
    char slpg[10];
    float sensor_volt;
-    float sensorValue;
+   float sensorValue;
 
-    sensorValue = analogRead(38);
-    sensor_volt = sensorValue/1024*5.0;
+   sensorValue = analogRead(38);
+   sensor_volt = sensorValue/1024*5.0;
 
-    Serial.print("sensor_volt = ");
-    Serial.print(sensor_volt);
+   Serial.print("sensor_volt = ");
+   Serial.print(sensor_volt);
     
-    Serial.println("V");
-    itoa(sensorValue,slpg,10); // converting value to string
+   Serial.println("V");
+   itoa(sensorValue,slpg,10); // converting value to string
     
-    client.publish("esp32/esp32test1",slpg);
-    Serial.println(sensorValue);
-    delay(1000);
+   client.publish("esp32/esp32test1",slpg);
+   Serial.println(sensorValue);
+   delay(1000);
 
 client.loop();
 }
