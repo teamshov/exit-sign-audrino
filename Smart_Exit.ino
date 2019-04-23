@@ -1,6 +1,15 @@
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <HardwareSerial.h>
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+uint64_t chipidnum = ESP.getEfuseMac();
+unsigned long c1 = (unsigned long)((chipidnum & 0xFFFF0000)>>16);
+unsigned long c2 = (unsigned long)((chipidnum & 0xFFFF0000));
+
+//Getting the mac address
+String chipid = String(c1, HEX) + String(c2, HEX);
 
 HardwareSerial mySerial(2);
 #define RXD2 16
@@ -8,7 +17,8 @@ HardwareSerial mySerial(2);
 
 const char* ssid = "pollution"; // username for the router
 const char* password = "aus12345"; // password for the router
-
+String colortopics = String("device/esp32/"+chipid+"/color");
+const char * colortopic = colortopics.c_str();
 
 // host address that we will connect to
 const char* mqttServer = "omaraa.ddns.net";
@@ -19,8 +29,7 @@ int red = 5;
 int green = 25;
 int blue = 14;
 
-WiFiClient espClient;
-PubSubClient client(espClient);
+
 
 //MQTT callback
 void callback(char* topic, byte* payload, unsigned int length)
@@ -112,7 +121,8 @@ void setup()
       delay(2000);
     }
   }
-  client.subscribe("esp32/esp32test");
+  Serial.print(colortopic);
+  client.subscribe(colortopic);
 
 }
 
@@ -130,8 +140,8 @@ void loop()
 
   Serial.println("V");
   itoa(sensorValue, slpg, 10); // converting value to string
-
-  client.publish("esp32/esp32test1", slpg);
+  const char * topic = String("device/esp32/"+chipid+"/mq2").c_str();
+  client.publish(topic, slpg);
   Serial.println(sensorValue);
   delay(1000);
 
