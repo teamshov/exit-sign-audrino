@@ -145,11 +145,12 @@ void loop()
   Serial.println(sensorValue);
   delay(1000);
 
+
   //Recieving the messages
   while (mySerial.available()) {
     Serial.print(char(mySerial.read()));
   }
-  if (Serial.available()) {
+  while (Serial.available()) {
     mySerial.write(char(Serial.read()));
   }
 
