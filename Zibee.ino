@@ -16,5 +16,13 @@ void loop()
 {
 
 //Recieving the messages  
-while(mySerial.available())Serial.println(char(mySerial.read()));
+while(mySerial.available()){
+  Serial.print(char(mySerial.read()));
+}
+  
+  //Sending Messages through the console
+if(Serial.available()){
+  mySerial.write(char(Serial.read()));
+}
+  
 }
