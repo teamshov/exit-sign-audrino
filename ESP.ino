@@ -5,11 +5,12 @@ WiFiClient espClient;
 PubSubClient client(espClient);
 
 uint64_t chipidnum = ESP.getEfuseMac();
-unsigned long c1 = (unsigned long)((chipidnum & 0xFFFF0000) >> 16);
-unsigned long c2 = (unsigned long)((chipidnum & 0xFFFF0000));
+uint16_t c1 = (uint16_t)(chipidnum >> 32);
+uint32_t c2 = (uint32_t)(chipidnum);
 
 //Getting the mac address
 String chipid = String(c1, HEX) + String(c2, HEX);
+
 
 HardwareSerial mySerial(2);
 #define RXD2 16
@@ -84,10 +85,13 @@ void callback(char* topic, byte* payload, unsigned int length)
 
 void setup()
 {
-
+  
   //Initilizing the xbee TX and RX
   //Serial.begin(baud-rate, protocol, RX pin, TX pin);
   Serial.begin(115200);
+  Serial.printf("ESP32 Chip ID = %04X",(uint16_t)(chipidnum>>32));//print High 2 bytes
+  Serial.printf("%08X\n",(uint32_t)chipidnum);//print Low 4bytes.
+  delay(3000);
   mySerial.begin(9600, SERIAL_8N1, RXD2, TXD2);
   //mySerial.begin(115200, SERIAL_8N1, RXD2, TXD2);
 
@@ -148,7 +152,8 @@ void setup()
 
 void loop()
 {
-  char slpg[8];
+  char slpg[10];
+  String pkt;
   float sensor_volt;
   float sensorValue;
   float danger_val;
@@ -167,34 +172,64 @@ void loop()
   dtostrf(danger_val, 4, 4, slpg);
   //  itoa(danger_val, slpg, 10); // converting value to string
   const char * topic = String("device/esp32/" + chipid + "/mq2").c_str();
-  client.publish(topic, slpg);
-  Serial.println(danger_val);
+  //client.publish(topic, slpg);
+  client.publish(topic, "0");
+  
+  Serial.println(slpg);
+  pkt = '-' + chipid + '/' + String(slpg) + '*';
+  Serial.println(pkt);
   delay(1000);
 
   if (flag == 1)
   {
-    String SS;
+    char SS;
+    bool ids = false;
+    bool colors = false;
+    String id = "";
+    char color=' ';
     //Recieving the messages
     while (mySerial.available()) {
       //Serial.print(char(mySerial.read()));
-      SS += char(mySerial.read());
       
+      SS = char(mySerial.read());
+      switch (SS){
+        case '-':
+          ids = true;
+          break;
+        case '/':
+          ids = false;
+          colors = true;
+          break;
+        case '*':
+          ids = false;
+          colors = false;
+          break;
+        default:
+          if(ids) {
+            id = id + SS;
+          } else if (colors) {
+            color = SS;
+          }
+          break;
+      }
     }
-    Serial.println(SS);
-      if (SS == "red") {
+
+    if(id == chipid) {
+    Serial.println(color);
+      if (color == 'r') {
         digitalWrite(red, LOW); // turn the LED on
         digitalWrite(blue, HIGH); // turn the LED on
         digitalWrite(green, HIGH); // turn the LED on
       }
 
-      if (SS == "green") {
+      if (color == 'g') {
         digitalWrite(green, LOW); // turn the LED on
         digitalWrite(blue, HIGH); // turn the LED on
         digitalWrite(red, HIGH); // turn the LED on
       }
-      for(int i = 0; i < 8; i++) {
-        mySerial.write(slpg[i]);
-      }
+    }
+        //mySerial.write(chipid.c_str());
+        mySerial.write(pkt.c_str());
       
 
     
